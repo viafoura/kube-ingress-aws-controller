@@ -73,6 +73,11 @@ func generateTemplate(certs map[string]time.Time, idleConnectionTimeoutSeconds u
 			Description: "IP Address Type, 'ipv4' or 'dualstack'",
 			Default:     "ipv4",
 		},
+		parameterLoadBalancerTypeParameter: &cloudformation.Parameter{
+			Type:        "String",
+			Description: "Loadbalancer Type, 'application' or 'network'",
+			Default:     "application",
+		},
 	}
 
 	template.AddResource("HTTPListener", &cloudformation.ElasticLoadBalancingV2Listener{
@@ -184,6 +189,7 @@ func generateTemplate(certs map[string]time.Time, idleConnectionTimeoutSeconds u
 				Value: cloudformation.Ref("AWS::StackName").String(),
 			},
 		},
+		Type: cloudformation.Ref(parameterLoadBalancerTypeParameter).String(),
 	})
 	template.AddResource("TG", &cloudformation.ElasticLoadBalancingV2TargetGroup{
 		HealthCheckIntervalSeconds: cloudformation.Ref(parameterTargetGroupHealthCheckIntervalParameter).Integer(),

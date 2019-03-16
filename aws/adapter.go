@@ -56,6 +56,7 @@ type Adapter struct {
 	controllerID               string
 	sslPolicy                  string
 	ipAddressType              string
+	loadbalancerType           string
 	albLogsS3Bucket            string
 	albLogsS3Prefix            string
 	wafWebAclId                string
@@ -91,6 +92,8 @@ const (
 	DefaultSslPolicy = "ELBSecurityPolicy-2016-08"
 	// DefaultIpAddressType sets IpAddressType to "ipv4", it is either ipv4 or dualstack
 	DefaultIpAddressType = "ipv4"
+	// DefaultLoadbalancerType is the default Type of a AWS::ElasticLoadBalancingV2::LoadBalancer "application" or "network"
+	DefaultLoadbalancerType = "application"
 	// DefaultAlbS3LogsBucket is a blank string, and must be set if enabled
 	DefaultAlbS3LogsBucket = ""
 	// DefaultAlbS3LogsPrefix is a blank string, and optionally set if desired
@@ -161,6 +164,7 @@ func NewAdapter(newControllerID string) (adapter *Adapter, err error) {
 		controllerID:        newControllerID,
 		sslPolicy:           DefaultSslPolicy,
 		ipAddressType:       DefaultIpAddressType,
+		loadbalancerType:    DefaultLoadbalancerType,
 		albLogsS3Bucket:     DefaultAlbS3LogsBucket,
 		albLogsS3Prefix:     DefaultAlbS3LogsPrefix,
 		wafWebAclId:         DefaultWafWebAclId,
@@ -455,6 +459,7 @@ func (a *Adapter) CreateStack(certificateARNs []string, scheme, securityGroup, o
 		controllerID:                 a.controllerID,
 		sslPolicy:                    a.sslPolicy,
 		ipAddressType:                a.ipAddressType,
+		loadbalancerType:             a.loadbalancerType, // TODO(sszuecs): make this configurable
 		albLogsS3Bucket:              a.albLogsS3Bucket,
 		albLogsS3Prefix:              a.albLogsS3Prefix,
 		wafWebAclId:                  a.wafWebAclId,
@@ -484,6 +489,7 @@ func (a *Adapter) UpdateStack(stackName string, certificateARNs map[string]time.
 		controllerID:                 a.controllerID,
 		sslPolicy:                    a.sslPolicy,
 		ipAddressType:                a.ipAddressType,
+		loadbalancerType:             a.loadbalancerType, // TODO(sszuecs): make this configurable
 		albLogsS3Bucket:              a.albLogsS3Bucket,
 		albLogsS3Prefix:              a.albLogsS3Prefix,
 		wafWebAclId:                  a.wafWebAclId,

@@ -25,8 +25,8 @@ type Stack struct {
 	Scheme          string
 	SecurityGroup   string
 	TargetGroupARN  string
-	CertificateARNs map[string]time.Time
 	OwnerIngress    string
+	CertificateARNs map[string]time.Time
 	tags            map[string]string
 }
 
@@ -107,6 +107,7 @@ const (
 	parameterListenerCertificatesParameter           = "ListenerCertificatesParameter"
 	parameterListenerSslPolicyParameter              = "ListenerSslPolicyParameter"
 	parameterIpAddressTypeParameter                  = "IpAddressType"
+	parameterLoadBalancerTypeParameter               = "Type"
 )
 
 type stackSpec struct {
@@ -127,6 +128,7 @@ type stackSpec struct {
 	controllerID                 string
 	sslPolicy                    string
 	ipAddressType                string
+	loadbalancerType             string
 	albLogsS3Bucket              string
 	albLogsS3Prefix              string
 	wafWebAclId                  string
@@ -155,6 +157,7 @@ func createStack(svc cloudformationiface.CloudFormationAPI, spec *stackSpec) (st
 			cfParam(parameterTargetTargetPortParameter, fmt.Sprintf("%d", spec.targetPort)),
 			cfParam(parameterListenerSslPolicyParameter, spec.sslPolicy),
 			cfParam(parameterIpAddressTypeParameter, spec.ipAddressType),
+			cfParam(parameterLoadBalancerTypeParameter, spec.loadbalancerType),
 		},
 		Tags: []*cloudformation.Tag{
 			cfTag(kubernetesCreatorTag, spec.controllerID),
@@ -205,6 +208,7 @@ func updateStack(svc cloudformationiface.CloudFormationAPI, spec *stackSpec) (st
 			cfParam(parameterTargetTargetPortParameter, fmt.Sprintf("%d", spec.targetPort)),
 			cfParam(parameterListenerSslPolicyParameter, spec.sslPolicy),
 			cfParam(parameterIpAddressTypeParameter, spec.ipAddressType),
+			cfParam(parameterLoadBalancerTypeParameter, spec.loadbalancerType),
 		},
 		Tags: []*cloudformation.Tag{
 			cfTag(kubernetesCreatorTag, spec.controllerID),
