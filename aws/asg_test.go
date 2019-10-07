@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
@@ -474,4 +475,59 @@ func TestDetach(t *testing.T) {
 		})
 	}
 
+}
+
+func TestTestFilterTags(t *testing.T) {
+	for _, test := range []struct {
+		name          string
+		clusterId     string
+		customFilter  string
+		asgTags       map[string]string
+		want          bool
+	}{
+		{
+			"success-test-filter-asg",
+			"mycluster",
+			"tag:kubernetes.io/cluster/mycluster=owned tag-key=k8s.io/role/node tag-key=custom.com/ingress",
+			map[string]string{
+				"kubernetes.io/cluster/mycluster": "owned",
+				"k8s.io/role/node": "1",
+				"custom.com/ingress": "",
+			},
+			true,
+		},
+		{
+			"success-test-filter-negative-asg",
+			"mycluster",
+			"tag:kubernetes.io/cluster/yourcluster=owned tag-key=k8s.io/role/node tag-key=custom.com/ingress",
+			map[string]string{
+				"kubernetes.io/cluster/mycluster": "owned",
+				"k8s.io/role/node": "1",
+				"custom.com/ingress": "",
+			},
+			false,
+		},
+		{
+			"success-test-filter-multi-value-asg",
+			"mycluster",
+			"tag:kubernetes.io/cluster/mycluster=owned tag-key=k8s.io/role/node tag:custom.com/ingress=owned,shared",
+			map[string]string{
+				"kubernetes.io/cluster/mycluster": "owned",
+				"k8s.io/role/node": "1",
+				"custom.com/ingress": "shared",
+			},
+			true,
+		},
+	} {
+		t.Run(fmt.Sprintf("%v", test.name), func(t *testing.T) {
+			os.Setenv("CUSTOM_FILTERS", test.customFilter)
+			filterTags := parseAutoscaleFilterTags(test.clusterId)
+			os.Unsetenv("CUSTOM_FILTERS")
+			got := testFilterTags(&filterTags, test.asgTags)
+
+			if !reflect.DeepEqual(test.want, got) {
+				t.Errorf("unexpected result. wanted %+v, got %+v", test.want, got)
+			}
+		})
+	}
 }
